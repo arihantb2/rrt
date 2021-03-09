@@ -22,6 +22,16 @@ namespace world
         LINE = 1,
     };
 
+    enum class ORIENTATION : int
+    {
+        CLOCKWISE = -1,
+        COLINEAR = 0,
+        COUNTERCLOCKWISE = 1,
+    };
+
+    static bool onSegment(const Vector2 &, const Vector2 &, const Vector2 &);
+    static ORIENTATION orientation(const Vector2 &, const Vector2 &, const Vector2 &);
+
     class Obstacle
     {
     public:
@@ -51,17 +61,17 @@ namespace world
     {
     public:
         Circle() = delete;
-        Circle(const Vector2 &position, double radius) : position_(position),
+        Circle(const Vector2 &center, double radius) : center_(center),
                                                          radius_(radius),
                                                          Obstacle(ObstacleType::CIRCLE) {}
-        Circle(const Circle &other) : position_(other.position()),
+        Circle(const Circle &other) : center_(other.center()),
                                       radius_(other.radius()),
                                       Obstacle(ObstacleType::CIRCLE) {}
 
         ~Circle() {}
 
-        Vector2 &position() { return position_; }
-        Vector2 position() const { return position_; }
+        Vector2 &center() { return center_; }
+        Vector2 center() const { return center_; }
 
         double &radius() { return radius_; }
         double radius() const { return radius_; }
@@ -69,7 +79,7 @@ namespace world
         virtual bool isColliding(const Vector2 &point1, const Vector2 &point2);
 
     private:
-        Vector2 position_;
+        Vector2 center_;
         double radius_;
     };
 
@@ -92,15 +102,6 @@ namespace world
         Vector2 &point2() { return point2_; }
         Vector2 point2() const { return point2_; }
 
-        enum class ORIENTATION : int
-        {
-            CLOCKWISE = -1,
-            COLINEAR = 0,
-            COUNTERCLOCKWISE = 1,
-        };
-
-        bool __onSegment(const Vector2 &, const Vector2 &, const Vector2 &);
-        ORIENTATION __orientation(const Vector2 &, const Vector2 &, const Vector2 &);
         bool isColliding(const Vector2 &, const Vector2 &);
 
     private:

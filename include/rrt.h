@@ -17,7 +17,8 @@ namespace planner
     class RRT
     {
     public:
-        RRT() {}
+        RRT() = delete;
+        RRT(const world::SearchGrid2 &grid) { searchGridPtr = std::make_shared<world::SearchGrid2>(grid); }
         ~RRT() {}
 
         bool findPath(const world::Vector2 &, const world::Vector2 &, const world::ObstacleMap &, world::Path2 &);
