@@ -1,0 +1,10 @@
+# Start point (x, y)
+start: (0.0, 0.0)
+
+# End point (x, y) / goal
+goal: (100.0, 100.0)
+
+# Obstacles in search space (x, y, radius)
+obstacles:
+  - (1.0, 1.0, 0.3)
+  - (2.0, 2.0, 0.7)
