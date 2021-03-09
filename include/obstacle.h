@@ -11,6 +11,7 @@
 #include <eigen3/Eigen/Dense>
 
 #include <math_lib.h>
+#include <state_space.h>
 
 namespace world
 {
@@ -38,7 +39,7 @@ namespace world
         ObstacleType type() { return type_; }
         ObstacleType type() const { return type_; }
 
-        virtual bool isColliding(const Eigen::Vector2d &, const Eigen::Vector2d &) { return false; }
+        virtual bool isColliding(const Vector2 &, const Vector2 &) { return false; }
 
     private:
         static unsigned int idCounter_;
@@ -50,25 +51,25 @@ namespace world
     {
     public:
         Circle() = delete;
-        Circle(const Eigen::Vector2d &position, double radius) : position_(position),
-                                                                 radius_(radius),
-                                                                 Obstacle(ObstacleType::CIRCLE) {}
+        Circle(const Vector2 &position, double radius) : position_(position),
+                                                         radius_(radius),
+                                                         Obstacle(ObstacleType::CIRCLE) {}
         Circle(const Circle &other) : position_(other.position()),
                                       radius_(other.radius()),
                                       Obstacle(ObstacleType::CIRCLE) {}
 
         ~Circle() {}
 
-        Eigen::Vector2d &position() { return position_; }
-        Eigen::Vector2d position() const { return position_; }
+        Vector2 &position() { return position_; }
+        Vector2 position() const { return position_; }
 
         double &radius() { return radius_; }
         double radius() const { return radius_; }
 
-        virtual bool isColliding(const Eigen::Vector2d &point1, const Eigen::Vector2d &point2) { return false; }
+        virtual bool isColliding(const Vector2 &point1, const Vector2 &point2);
 
     private:
-        Eigen::Vector2d position_;
+        Vector2 position_;
         double radius_;
     };
 
@@ -76,28 +77,38 @@ namespace world
     {
     public:
         Line() = delete;
-        Line(const Eigen::Vector2d &point1, const Eigen::Vector2d &point2) : Obstacle(ObstacleType::LINE),
-                                                                             point1_(point1),
-                                                                             point2_(point2) {}
+        Line(const Vector2 &point1, const Vector2 &point2) : Obstacle(ObstacleType::LINE),
+                                                             point1_(point1),
+                                                             point2_(point2) {}
         Line(const Line &other) : Obstacle(ObstacleType::LINE),
                                   point1_(other.point1()),
                                   point2_(other.point2()) {}
 
         ~Line() {}
 
-        Eigen::Vector2d &point1() { return point1_; }
-        Eigen::Vector2d point1() const { return point1_; }
+        Vector2 &point1() { return point1_; }
+        Vector2 point1() const { return point1_; }
 
-        Eigen::Vector2d &point2() { return point2_; }
-        Eigen::Vector2d point2() const { return point2_; }
+        Vector2 &point2() { return point2_; }
+        Vector2 point2() const { return point2_; }
 
-        virtual bool isColliding(const Eigen::Vector2d &point1, const Eigen::Vector2d &point2) { return false; }
+        enum class ORIENTATION : int
+        {
+            CLOCKWISE = -1,
+            COLINEAR = 0,
+            COUNTERCLOCKWISE = 1,
+        };
+
+        bool __onSegment(const Vector2 &, const Vector2 &, const Vector2 &);
+        ORIENTATION __orientation(const Vector2 &, const Vector2 &, const Vector2 &);
+        bool isColliding(const Vector2 &, const Vector2 &);
 
     private:
-        Eigen::Vector2d point1_;
-        Eigen::Vector2d point2_;
+        Vector2 point1_;
+        Vector2 point2_;
     };
 
     typedef std::shared_ptr<Obstacle> ObstaclePtr;
     typedef std::vector<Obstacle> ObstacleList;
+    typedef std::map<unsigned int, Obstacle> ObstacleMap;
 }

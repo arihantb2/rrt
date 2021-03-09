@@ -12,18 +12,21 @@
 
 namespace world
 {
+    typedef Eigen::Vector2d Vector2;
+    typedef std::vector<world::Vector2> Path2;
+
     class StateSpace2
     {
     public:
-        StateSpace2() : position_(Eigen::Vector2d::Zero()) {}
+        StateSpace2() : position_(Vector2::Zero()) {}
         StateSpace2(double x, double y) { position_ << x, y; }
-        StateSpace2(const Eigen::Vector2d &position) : position_(position) {}
+        StateSpace2(const Vector2 &position) : position_(position) {}
         StateSpace2(const StateSpace2 &other) : position_(other.position()) {}
 
         ~StateSpace2() {}
 
-        Eigen::Vector2d &position() { return position_; }
-        Eigen::Vector2d position() const { return position_; }
+        Vector2 &position() { return position_; }
+        Vector2 position() const { return position_; }
 
         double &x() { return position_.x(); }
         double x() const { return position_.x(); }
@@ -32,7 +35,7 @@ namespace world
         double y() const { return position_.y(); }
 
     private:
-        Eigen::Vector2d position_;
+        Vector2 position_;
     };
 
     class Node : public StateSpace2
@@ -51,6 +54,7 @@ namespace world
     public:
         Tree() {}
         ~Tree() {}
+
     private:
         Node *root;
     };

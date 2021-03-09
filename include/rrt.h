@@ -10,6 +10,7 @@
 #include <bits/stdc++.h>
 
 #include <search_space.h>
+#include <state_space.h>
 
 namespace planner
 {
@@ -19,8 +20,9 @@ namespace planner
         RRT() {}
         ~RRT() {}
 
+        bool findPath(const world::Vector2 &, const world::Vector2 &, const world::ObstacleMap &, world::Path2 &);
+
     private:
         std::shared_ptr<world::SearchGrid2> searchGridPtr;
-        world::ObstacleList obstacles;
     };
 }

@@ -9,5 +9,8 @@
 
 namespace planner
 {
-
+    bool RRT::findPath(const world::Vector2 &start, const world::Vector2 &goal, const world::ObstacleMap &obstacles, world::Path2 &path)
+    {
+        return false;
+    }
 }

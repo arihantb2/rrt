@@ -20,5 +20,9 @@ int main(int argc, char const *argv[])
     world::SearchGrid2 grid(gridConfig);
 
     planner::RRT rrt;
+
+    world::ObstaclePtr circle = std::make_shared<world::Circle>(world::Vector2(0.0, 0.0), 3.0);
+    std::cout << "intersection test: " << std::boolalpha << circle->isColliding(world::Vector2(-5.0, 0.0), world::Vector2(-10.0, 0.0)) << std::endl;
+
     return 0;
 }

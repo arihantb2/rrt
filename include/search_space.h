@@ -36,8 +36,8 @@ namespace world
 
         ~SearchGrid2Config() {}
 
-        Eigen::Vector2d xlim_;
-        Eigen::Vector2d ylim_;
+        Vector2 xlim_;
+        Vector2 ylim_;
         double xres_;
         double yres_;
     };
@@ -57,41 +57,9 @@ namespace world
         bool isStateValid(const StateSpace2 &);
         bool isStateValid(const StateSpace2 &) const;
 
-        Eigen::Vector2d getGridPointClosestTo(const Eigen::Vector2d &point)
-        {
-            Eigen::Vector2d gridPoint;
-
-            assert(point.x() >= config_.xlim_[0]);
-            assert(point.x() <= config_.xlim_[1]);
-            assert(point.y() >= config_.ylim_[0]);
-            assert(point.y() <= config_.ylim_[1]);
-
-            gridPoint.x() = config_.xres_ * round(point.x() / config_.xres_);
-            gridPoint.y() = config_.yres_ * round(point.y() / config_.yres_);
-
-            return gridPoint;
-        }
-
-        Eigen::Vector2d getGridPointClosestTo(const Eigen::Vector2d &point) const
-        {
-            Eigen::Vector2d gridPoint;
-
-            assert(point.x() >= config_.xlim_[0]);
-            assert(point.x() <= config_.xlim_[1]);
-            assert(point.y() >= config_.ylim_[0]);
-            assert(point.y() <= config_.ylim_[1]);
-
-            gridPoint.x() = config_.xres_ * round(point.x() / config_.xres_);
-            gridPoint.y() = config_.yres_ * round(point.y() / config_.yres_);
-
-            return gridPoint;
-        }
-
-        Eigen::Vector2d getRandomGridPoint()
-        {
-            return Eigen::Vector2d(math_lib::dRand(config_.xlim_[0], config_.xlim_[1]),
-                                   math_lib::dRand(config_.ylim_[0], config_.ylim_[1]));
-        }
+        Vector2 getGridPointClosestTo(const Vector2 &point);
+        Vector2 getGridPointClosestTo(const Vector2 &point) const;
+        Vector2 getRandomGridPoint();
 
     private:
         SearchGrid2Config config_;
