@@ -3,6 +3,8 @@ project(rrt)
 
 set(CMAKE_CXX_STANDARD_REQUIRED 14)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 find_package(Eigen3 REQUIRED)
 
 include_directories(include)

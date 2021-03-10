@@ -62,11 +62,11 @@ namespace world
     public:
         Circle() = delete;
         Circle(const Vector2 &center, double radius) : center_(center),
-                                                         radius_(radius),
-                                                         Obstacle(ObstacleType::CIRCLE) {}
+                                                       radius_(radius),
+                                                       Obstacle(ObstacleType::CIRCLE) {}
         Circle(const Circle &other) : center_(other.center()),
                                       radius_(other.radius()),
-                                      Obstacle(ObstacleType::CIRCLE) {}
+                                      Obstacle(other) {}
 
         ~Circle() {}
 
@@ -90,7 +90,7 @@ namespace world
         Line(const Vector2 &point1, const Vector2 &point2) : Obstacle(ObstacleType::LINE),
                                                              point1_(point1),
                                                              point2_(point2) {}
-        Line(const Line &other) : Obstacle(ObstacleType::LINE),
+        Line(const Line &other) : Obstacle(other),
                                   point1_(other.point1()),
                                   point2_(other.point2()) {}
 
@@ -112,4 +112,5 @@ namespace world
     typedef std::shared_ptr<Obstacle> ObstaclePtr;
     typedef std::vector<Obstacle> ObstacleList;
     typedef std::map<unsigned int, Obstacle> ObstacleMap;
+    typedef std::map<unsigned int, ObstaclePtr> ObstaclePtrMap;
 }

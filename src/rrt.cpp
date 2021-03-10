@@ -9,8 +9,129 @@
 
 namespace planner
 {
-    bool RRT::findPath(const world::Vector2 &start, const world::Vector2 &goal, const world::ObstacleMap &obstacles, world::Path2 &path)
+    RRT::RRT(const world::SearchGrid2 &grid, const RRTConfig &config)
     {
-        return false;
+        searchGridPtr = std::make_shared<world::SearchGrid2>(grid);
+        config_ = config;
+        numIterations_ = 0;
+    }
+
+    void RRT::reset()
+    {
+        numIterations_ = 0;
+    }
+
+    bool RRT::findPath(const world::Vector2 &start, const world::Vector2 &goal, world::Path2 &path, double &distance)
+    {
+        assert(searchGridPtr->isPointValid(start) && "Start point is not contained inside the search space");
+        assert(searchGridPtr->isPointValid(goal) && "Goal point is not contained inside the search space");
+
+        reset();
+
+        bool found = false;
+
+        Tree tree;
+        tree.root_ = tree.addNode(start);
+        tree.root_->parent_ = nullptr;
+        tree.root_->children_.clear();
+        tree.root_->cost_ = 0.0;
+
+        numIterations_ = 0;
+        std::shared_ptr<Node> lastNode;
+        while (numIterations_ < config_.maxIterations_)
+        {
+            numIterations_++;
+
+            world::Vector2 randomPoint = searchGridPtr->getRandomGridPoint();
+
+            double dist;
+            std::shared_ptr<Node> closestNode = tree.getNodeClosestTo(randomPoint, dist);
+
+            if (dist > config_.maxSearchDistance_)
+            {
+                randomPoint = (config_.maxSearchDistance_ / dist) * (randomPoint - closestNode->data_) + closestNode->data_;
+                randomPoint = searchGridPtr->getGridPointClosestTo(randomPoint);
+                dist = math_lib::euclideandist2(randomPoint, closestNode->data_);
+            }
+
+            if (searchGridPtr->collisionCheck(closestNode->data_, randomPoint))
+                continue;
+
+            std::shared_ptr<Node> node;
+            if (tree.nodeExists(randomPoint, node) == false)
+            {
+                node = tree.addNode(randomPoint);
+                node->parent_ = closestNode;
+                closestNode->children_.push_back(node);
+                node->cost_ = closestNode->cost_ + dist;
+            }
+
+            else if (closestNode->cost_ + dist < node->cost_)
+            {
+                closestNode->children_.push_back(node);
+                node->parent_ = closestNode;
+                node->cost_ = closestNode->cost_ + dist;
+            }
+
+            lastNode = node;
+
+            if ((math_lib::euclideandist2(randomPoint, goal) <= config_.goalClosenessThreshold_) && (numIterations_ > config_.minIterations_))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+        {
+            distance = lastNode->cost_;
+            while (lastNode != nullptr)
+            {
+                path.push_front(lastNode->data_);
+                lastNode = lastNode->parent_;
+            }
+        }
+
+        else
+            distance = std::numeric_limits<double>::max();
+
+        return found;
+    }
+
+    std::shared_ptr<Node> Tree::getNodeClosestTo(const world::Vector2 &point, double &minDist)
+    {
+        std::shared_ptr<Node> minNode;
+        minDist = std::numeric_limits<double>::max();
+        for (auto node : nodes_)
+        {
+            double dist = math_lib::euclideandist2(node.second->data_, point);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                minNode = node.second;
+            }
+        }
+
+        return minNode;
+    }
+
+    std::shared_ptr<Node> Tree::addNode(const world::Vector2 &point)
+    {
+        std::size_t hash = world::vectorHash(point);
+        std::shared_ptr<Node> node = std::make_shared<Node>(point);
+        nodes_.insert(std::make_pair(hash, node));
+
+        return node;
+    }
+
+    bool Tree::nodeExists(const world::Vector2 &point, std::shared_ptr<Node> &node)
+    {
+        std::size_t hash = world::vectorHash(point);
+
+        if (nodes_.find(hash) == nodes_.end())
+            return false;
+
+        node = nodes_.at(hash);
+        return true;
     }
 }
