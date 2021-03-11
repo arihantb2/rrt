@@ -77,15 +77,15 @@ int main(int argc, char const *argv[])
     std::cout << "Goal Pose:  [" << goalPose.transpose() << "]\n";
 
     planner::RRT rrt(grid, rrtConfig);
-    world::Path2 path;
-    double distance;
-    bool found = rrt.findPath(startPose, goalPose, path, distance);
-    if (found && path.size() > 0)
+    bool found = rrt.findPath(startPose, goalPose);
+    if (found)
     {
+        world::Path2 path = rrt.path();
+        double distance = rrt.pathLength();
         std::cout << "path found: \n";
         for (unsigned int i = 0; i < path.size() - 1; i++)
             std::cout << "[" << path[i].transpose() << "] --> [" << path[i + 1].transpose() << "] distance: [" << math_lib::euclideandist2(path[i], path[i + 1]) << "] collision? " << std::boolalpha << grid.collisionCheck(path[i], path[i + 1]) << std::endl;
-        std::cout << "distance: " << distance << std::endl;
+        std::cout << "path length: " << distance << std::endl;
     }
     else
         std::cout << "path not found\n";

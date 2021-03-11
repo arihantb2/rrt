@@ -17,7 +17,7 @@ namespace planner
         pathFound_ = false;
     }
 
-    bool RRT::findPath(const world::Vector2 &start, const world::Vector2 &goal, world::Path2 &path, double &distance)
+    bool RRT::findPath(const world::Vector2 &start, const world::Vector2 &goal)
     {
         assert(searchGridPtr->isPointValid(start) && "Start point is not contained inside the search space");
         assert(searchGridPtr->isPointValid(goal) && "Goal point is not contained inside the search space");
@@ -77,20 +77,55 @@ namespace planner
             }
         }
 
+        return pathFound_;
+    }
+
+    world::Path2 RRT::path()
+    {
+        world::Path2 path;
         if (pathFound_)
         {
-            distance = goalNode_->cost_;
-            while (goalNode_ != nullptr)
+            std::shared_ptr<Node> node = goalNode_;
+            while (node != nullptr)
             {
-                path.push_front(goalNode_->data_);
-                goalNode_ = goalNode_->parent_;
+                path.push_front(node->data_);
+                node = node->parent_;
             }
         }
 
-        else
-            distance = std::numeric_limits<double>::max();
+        return path;
+    }
 
-        return pathFound_;
+    world::Path2 RRT::path() const
+    {
+        world::Path2 path;
+        if (pathFound_)
+        {
+            std::shared_ptr<Node> node = goalNode_;
+            while (node != nullptr)
+            {
+                path.push_front(node->data_);
+                node = node->parent_;
+            }
+        }
+
+        return path;
+    }
+
+    double RRT::pathLength()
+    {
+        if (pathFound_)
+            return goalNode_->cost_;
+
+        return -1.0;
+    }
+
+    double RRT::pathLength() const
+    {
+        if (pathFound_)
+            return goalNode_->cost_;
+
+        return -1.0;
     }
 
     std::shared_ptr<Node> Tree::getNodeClosestTo(const world::Vector2 &point, double &distance)

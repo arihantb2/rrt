@@ -12,7 +12,7 @@ namespace planner
     public:
         Node() = delete;
         Node(const world::Vector2 &data) : data_(data), parent_(nullptr), cost_(std::numeric_limits<double>::max()) {}
-        Node(const Node& other) : data_(other.data_), parent_(other.parent_), cost_(other.cost_), children_(other.children_) {}
+        Node(const Node &other) : data_(other.data_), parent_(other.parent_), cost_(other.cost_), children_(other.children_) {}
         ~Node()
         {
             children_.clear();
@@ -83,8 +83,17 @@ namespace planner
         RRT(const world::SearchGrid2 &, const RRTConfig &);
         ~RRT() {}
 
+        bool pathFound() { return pathFound_; }
+        bool pathFound() const { return pathFound_; }
+
+        world::Path2 path();
+        world::Path2 path() const;
+
+        double pathLength();
+        double pathLength() const;
+
         void reset();
-        bool findPath(const world::Vector2 &, const world::Vector2 &, world::Path2 &, double &);
+        bool findPath(const world::Vector2 &, const world::Vector2 &);
 
     private:
         std::shared_ptr<world::SearchGrid2> searchGridPtr;
