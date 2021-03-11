@@ -8,7 +8,7 @@ To use the application, unpack the provided zip file and build and run using the
 The application has dependencies that will be available with out of the box Ubuntu 20.04 operating system. They are as follows,
 
 * *Operating system*: Ubuntu 20.04 or equivalent
-* *CMake* 3.8.10 or above
+* *CMake* 3.10.2 or above
 * *gcc/g++* 7.5.0 or above
 * *Eigen3*
 * *yaml-cpp*
