@@ -10,6 +10,8 @@ The application has dependencies that will be available with out of the box Ubun
 * *Operating system*: Ubuntu 20.04 or equivalent
 * *CMake* 3.8.10 or above
 * *gcc/g++* 7.5.0 or above
+* *Eigen3*
+* *yaml-cpp*
 
 ## Build
 
