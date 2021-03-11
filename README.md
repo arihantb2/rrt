@@ -1,7 +1,7 @@
 # RRT
 This is a basic implementation of RRT on a 2D world with line and circle obstacles
 
-To use the application, unpack the provided zip file and build and run using the instructions below.
+To use the application, clone this repository and build and run using the instructions below.
 
 ## Dependencies
 
