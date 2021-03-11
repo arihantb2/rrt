@@ -13,12 +13,15 @@ namespace planner
     {
         searchGridPtr = std::make_shared<world::SearchGrid2>(grid);
         config_ = config;
-        numIterations_ = 0;
+
+        reset();
     }
 
     void RRT::reset()
     {
         numIterations_ = 0;
+        goalNode_ = nullptr;
+        pathFound_ = false;
     }
 
     bool RRT::findPath(const world::Vector2 &start, const world::Vector2 &goal, world::Path2 &path, double &distance)
@@ -28,8 +31,6 @@ namespace planner
 
         reset();
 
-        bool found = false;
-
         Tree tree;
         tree.root_ = tree.addNode(start);
         tree.root_->parent_ = nullptr;
@@ -37,7 +38,6 @@ namespace planner
         tree.root_->cost_ = 0.0;
 
         numIterations_ = 0;
-        std::shared_ptr<Node> lastNode;
         while (numIterations_ < config_.maxIterations_)
         {
             numIterations_++;
@@ -73,29 +73,29 @@ namespace planner
                 node->cost_ = closestNode->cost_ + dist;
             }
 
-            lastNode = node;
-
-            if ((math_lib::euclideandist2(randomPoint, goal) <= config_.goalClosenessThreshold_) && (numIterations_ > config_.minIterations_))
+            if (math_lib::euclideandist2(randomPoint, goal) <= config_.goalClosenessThreshold_)
             {
-                found = true;
-                break;
+                pathFound_ = true;
+                goalNode_ = node;
+                if (numIterations_ > config_.minIterations_)
+                    break;
             }
         }
 
-        if (found)
+        if (pathFound_)
         {
-            distance = lastNode->cost_;
-            while (lastNode != nullptr)
+            distance = goalNode_->cost_;
+            while (goalNode_ != nullptr)
             {
-                path.push_front(lastNode->data_);
-                lastNode = lastNode->parent_;
+                path.push_front(goalNode_->data_);
+                goalNode_ = goalNode_->parent_;
             }
         }
 
         else
             distance = std::numeric_limits<double>::max();
 
-        return found;
+        return pathFound_;
     }
 
     std::shared_ptr<Node> Tree::getNodeClosestTo(const world::Vector2 &point, double &minDist)

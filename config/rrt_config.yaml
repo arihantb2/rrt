@@ -5,7 +5,7 @@ start_pose: [0.0, 0.0]
 goal_pose: generate_random
 
 # Obstacles
-obstacles: []
+obstacles:
   # - type  : Line
   #   start : [-5, 10]
   #   end   : [5, 10]
@@ -15,9 +15,9 @@ obstacles: []
   # - type  : Line
   #   start : [5, 10]
   #   end   : [5, -10]
-  # - type  : Circle
-  #   center: [10, 0]
-  #   radius: 20
+  - type  : Circle
+    center: [10, 0]
+    radius: 20
 
 # Search space grid
 grid:

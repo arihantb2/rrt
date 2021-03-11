@@ -97,5 +97,7 @@ namespace planner
         std::shared_ptr<world::SearchGrid2> searchGridPtr;
         RRTConfig config_;
         unsigned int numIterations_;
+        bool pathFound_;
+        std::shared_ptr<Node> goalNode_;
     };
 }
