@@ -1,10 +1,3 @@
-/*
-* Author: Arihant Lunawat
-* File: rrt.h
-* This file and its contents are confidential and owned by the author of this document. it is prohibited
-* from usage by anyone other than the author
-*/
-
 #pragma once
 
 #include <bits/stdc++.h>
@@ -54,7 +47,7 @@ namespace planner
     public:
         RRTConfig()
         {
-            maxSearchDistance_ = 20.0;
+            maxStepSize_ = 20.0;
             maxIterations_ = 100;
             minIterations_ = 10;
             goalClosenessThreshold_ = 1.0;
@@ -62,7 +55,7 @@ namespace planner
 
         RRTConfig(const RRTConfig &other)
         {
-            maxSearchDistance_ = other.maxSearchDistance_;
+            maxStepSize_ = other.maxStepSize_;
             maxIterations_ = other.maxIterations_;
             minIterations_ = other.minIterations_;
             goalClosenessThreshold_ = other.goalClosenessThreshold_;
@@ -73,11 +66,11 @@ namespace planner
             std::cout << "--------RRT CONFIG--------\n";
             std::cout << "Max Iterations          : [" << maxIterations_ << "]\n";
             std::cout << "Min Iterations          : [" << minIterations_ << "]\n";
-            std::cout << "Max Search Distance     : [" << maxSearchDistance_ << "]\n";
+            std::cout << "Max Step Size           : [" << maxStepSize_ << "]\n";
             std::cout << "Goal Closeness Threshold: [" << goalClosenessThreshold_ << "]\n";
         }
 
-        double maxSearchDistance_;
+        double maxStepSize_;
         unsigned int maxIterations_;
         unsigned int minIterations_;
         double goalClosenessThreshold_;

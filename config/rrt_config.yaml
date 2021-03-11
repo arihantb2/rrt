@@ -1,8 +1,8 @@
-# Start coordinates [x, y]
-start_pose: [0.0, 0.0]
+# Start coordinates [x, y] or generate_random
+start_pose: [-100.0, -100.0]
 
-# Goal coordinates [x, y]
-goal_pose: generate_random
+# Goal coordinates [x, y] or generate_random
+goal_pose: [100.0, 100.0]
 
 # Obstacles
 obstacles:
@@ -23,11 +23,11 @@ obstacles:
 grid:
   xlimits: [-100.0, 100.0]
   ylimits: [-100.0, 100.0]
-  spacing: [0.1, 0.1]
+  spacing: [1.0, 1.0]
 
 # RRT
 rrt:
-  max_search_distance     : 25.0
+  max_step_size           : 50.0
   min_iterations          : 100
   max_iterations          : 10000
-  goal_closeness_threshold: 1.0
+  goal_closeness_threshold: 3.0

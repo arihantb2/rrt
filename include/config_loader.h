@@ -90,8 +90,8 @@ namespace config_loader
             YAML::Node rrtNode = config["rrt"];
             assert(rrtNode.IsMap() && "Error in reading rrt config from YAML config file. Format mismatch");
 
-            assert(rrtNode["max_search_distance"].IsScalar() && "Error in reading max_search_distance config from YAML config file. Format mismatch");
-            rrtConfig.maxSearchDistance_ = rrtNode["max_search_distance"].as<double>();
+            assert(rrtNode["max_step_size"].IsScalar() && "Error in reading max_step_size config from YAML config file. Format mismatch");
+            rrtConfig.maxStepSize_ = rrtNode["max_step_size"].as<double>();
 
             assert(rrtNode["min_iterations"].IsScalar() && "Error in reading min_iterations config from YAML config file. Format mismatch");
             rrtConfig.minIterations_ = rrtNode["min_iterations"].as<double>();

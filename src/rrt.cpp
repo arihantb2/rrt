@@ -1,10 +1,3 @@
-/*
-* Author: Arihant Lunawat
-* File: rrt.cpp
-* This file and its contents are confidential and owned by the author of this document. it is prohibited
-* from usage by anyone other than the author
-*/
-
 #include <rrt.h>
 
 namespace planner
@@ -47,20 +40,22 @@ namespace planner
             double dist;
             std::shared_ptr<Node> closestNode = tree.getNodeClosestTo(randomPoint, dist);
 
-            if (dist > config_.maxSearchDistance_)
-            {
-                randomPoint = (config_.maxSearchDistance_ / dist) * (randomPoint - closestNode->data_) + closestNode->data_;
-                randomPoint = searchGridPtr->getGridPointClosestTo(randomPoint);
-                dist = math_lib::euclideandist2(randomPoint, closestNode->data_);
-            }
+            double stepSize = math_lib::dRand(0.0, config_.maxStepSize_);
 
-            if (searchGridPtr->collisionCheck(closestNode->data_, randomPoint))
+            world::Vector2 direction = randomPoint - closestNode->data_;
+            double size = direction.norm();
+            direction = direction / size;
+
+            world::Vector2 newPoint = searchGridPtr->getGridPointClosestTo(closestNode->data_ + direction * stepSize);
+            dist = math_lib::euclideandist2(newPoint, closestNode->data_);
+
+            if (searchGridPtr->collisionCheck(closestNode->data_, newPoint))
                 continue;
 
             std::shared_ptr<Node> node;
-            if (tree.nodeExists(randomPoint, node) == false)
+            if (tree.nodeExists(newPoint, node) == false)
             {
-                node = tree.addNode(randomPoint);
+                node = tree.addNode(newPoint);
                 node->parent_ = closestNode;
                 closestNode->children_.push_back(node);
                 node->cost_ = closestNode->cost_ + dist;
@@ -73,7 +68,7 @@ namespace planner
                 node->cost_ = closestNode->cost_ + dist;
             }
 
-            if (math_lib::euclideandist2(randomPoint, goal) <= config_.goalClosenessThreshold_)
+            if (math_lib::euclideandist2(newPoint, goal) <= config_.goalClosenessThreshold_)
             {
                 pathFound_ = true;
                 goalNode_ = node;
@@ -98,16 +93,17 @@ namespace planner
         return pathFound_;
     }
 
-    std::shared_ptr<Node> Tree::getNodeClosestTo(const world::Vector2 &point, double &minDist)
+    std::shared_ptr<Node> Tree::getNodeClosestTo(const world::Vector2 &point, double &distance)
     {
         std::shared_ptr<Node> minNode;
-        minDist = std::numeric_limits<double>::max();
+        double heuristicDist = std::numeric_limits<double>::max();
         for (auto node : nodes_)
         {
             double dist = math_lib::euclideandist2(node.second->data_, point);
-            if (dist < minDist)
+            if (dist < heuristicDist)
             {
-                minDist = dist;
+                distance = dist;
+                heuristicDist = dist;
                 minNode = node.second;
             }
         }

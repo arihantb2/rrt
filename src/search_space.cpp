@@ -1,10 +1,3 @@
-/*
-* Author: Arihant Lunawat
-* File: search_space.cpp
-* This file and its contents are confidential and owned by the author of this document. it is prohibited
-* from usage by anyone other than the author
-*/
-
 #include <search_space.h>
 
 namespace world
@@ -24,10 +17,15 @@ namespace world
     {
         Vector2 gridPoint;
 
-        assert(point.x() >= config_.xlim_[0]);
-        assert(point.x() <= config_.xlim_[1]);
-        assert(point.y() >= config_.ylim_[0]);
-        assert(point.y() <= config_.ylim_[1]);
+        if (point.x() <= config_.xlim_[0])
+            gridPoint.x() = config_.xlim_[0];
+        else if (point.x() >= config_.xlim_[1])
+            gridPoint.x() = config_.xlim_[1];
+        
+        if (point.y() <= config_.ylim_[0])
+            gridPoint.y() = config_.ylim_[0];
+        else if (point.y() >= config_.ylim_[1])
+            gridPoint.y() = config_.ylim_[1];
 
         gridPoint.x() = config_.xres_ * round(point.x() / config_.xres_);
         gridPoint.y() = config_.yres_ * round(point.y() / config_.yres_);

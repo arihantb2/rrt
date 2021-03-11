@@ -1,10 +1,3 @@
-/*
-* Author: Arihant Lunawat
-* File: rrt_main.cpp
-* This file and its contents are confidential and owned by the author of this document. it is prohibited
-* from usage by anyone other than the author
-*/
-
 #include <yaml-cpp/yaml.h>
 
 #include <rrt.h>
