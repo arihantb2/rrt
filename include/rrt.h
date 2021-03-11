@@ -68,6 +68,15 @@ namespace planner
             goalClosenessThreshold_ = other.goalClosenessThreshold_;
         }
 
+        void print()
+        {
+            std::cout << "--------RRT CONFIG--------\n";
+            std::cout << "Max Iterations          : [" << maxIterations_ << "]\n";
+            std::cout << "Min Iterations          : [" << minIterations_ << "]\n";
+            std::cout << "Max Search Distance     : [" << maxSearchDistance_ << "]\n";
+            std::cout << "Goal Closeness Threshold: [" << goalClosenessThreshold_ << "]\n";
+        }
+
         double maxSearchDistance_;
         unsigned int maxIterations_;
         unsigned int minIterations_;

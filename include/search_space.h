@@ -32,18 +32,32 @@ namespace world
     public:
         SearchGrid2Config()
         {
+            xlim_ << -100.0, 100.0;
+            ylim_ << -100.0, 100.0;
             xres_ = 1.0;
             yres_ = 1.0;
         }
 
         SearchGrid2Config(const SearchGrid2Config &other)
         {
+            xlim_ = other.xlim_;
+            ylim_ = other.ylim_;
             xres_ = other.xres_;
             yres_ = other.yres_;
         }
 
         ~SearchGrid2Config() {}
 
+        void print()
+        {
+            std::cout << "--------SEARCH GRID2 CONFIG--------\n";
+            std::cout << "X limits: [" << xlim_.transpose() << "]\n";
+            std::cout << "Y limits: [" << ylim_.transpose() << "]\n";
+            std::cout << "Spacing : [" << xres_ << " " << yres_ << "]\n";
+        }
+
+        Vector2 xlim_;
+        Vector2 ylim_;
         double xres_;
         double yres_;
     };
@@ -52,25 +66,13 @@ namespace world
     {
     public:
         SearchGrid2() = delete;
-        SearchGrid2(const Vector2 &xlim,
-                    const Vector2 &ylim,
-                    const SearchGrid2Config &config,
+        SearchGrid2(const SearchGrid2Config &config,
                     const ObstaclePtrMap &obstacles = ObstaclePtrMap()) : config_(config),
-                                                                          xlim_(xlim),
-                                                                          ylim_(ylim),
                                                                           obstacles_(obstacles) {}
         SearchGrid2(const SearchGrid2 &other) : config_(other.config()),
-                                                xlim_(other.xlim()),
-                                                ylim_(other.ylim()),
                                                 obstacles_(other.obstacles()) {}
 
         ~SearchGrid2() {}
-
-        Vector2 &xlim() { return xlim_; }
-        Vector2 xlim() const { return xlim_; }
-
-        Vector2 &ylim() { return ylim_; }
-        Vector2 ylim() const { return ylim_; }
 
         ObstaclePtrMap &obstacles() { return obstacles_; }
         ObstaclePtrMap obstacles() const { return obstacles_; }
@@ -93,7 +95,5 @@ namespace world
     private:
         SearchGrid2Config config_;
         world::ObstaclePtrMap obstacles_;
-        Vector2 xlim_;
-        Vector2 ylim_;
     };
 }

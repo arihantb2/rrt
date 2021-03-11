@@ -1,10 +1,33 @@
-# Start point (x, y)
-start: (0.0, 0.0)
+# Start coordinates [x, y]
+start_pose: [0.0, 0.0]
 
-# End point (x, y) / goal
-goal: (100.0, 100.0)
+# Goal coordinates [x, y]
+goal_pose: generate_random
 
-# Obstacles in search space (x, y, radius)
-obstacles:
-  - (1.0, 1.0, 0.3)
-  - (2.0, 2.0, 0.7)
+# Obstacles
+obstacles: []
+  # - type  : Line
+  #   start : [-5, 10]
+  #   end   : [5, 10]
+  # - type  : Line
+  #   start : [-5, 10]
+  #   end   : [-5, -10]
+  # - type  : Line
+  #   start : [5, 10]
+  #   end   : [5, -10]
+  # - type  : Circle
+  #   center: [10, 0]
+  #   radius: 20
+
+# Search space grid
+grid:
+  xlimits: [-100.0, 100.0]
+  ylimits: [-100.0, 100.0]
+  spacing: [0.1, 0.1]
+
+# RRT
+rrt:
+  max_search_distance     : 25.0
+  min_iterations          : 100
+  max_iterations          : 10000
+  goal_closeness_threshold: 1.0

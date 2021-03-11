@@ -5,49 +5,93 @@
 * from usage by anyone other than the author
 */
 
-#include <rrt.h>
 #include <yaml-cpp/yaml.h>
+
+#include <rrt.h>
+#include <config_loader.h>
 
 int main(int argc, char const *argv[])
 {
-    world::SearchGrid2Config gridConfig;
+    assert((argc == 2) && "Exactly one argument required after executable name. Usage: ./rrt <yaml-config-file-path>");
 
-    gridConfig.xres_ = 1.0;
-    gridConfig.yres_ = 1.0;
+    YAML::Node config = YAML::LoadFile(argv[1]);
+    assert(config.IsDefined() && config.IsMap() && "Error in reading YAML config file. Undefined or format mismatch");
 
-    world::ObstaclePtrMap obstacleMap;
-    // world::ObstaclePtr lineObstacle = std::make_shared<world::Line>(world::Vector2(-100, 0), world::Vector2(100, 0));
-    // obstacleMap.insert(std::make_pair(lineObstacle->id(), lineObstacle));
-    world::ObstaclePtr circle = std::make_shared<world::Circle>(world::Vector2(0.0, 0.0), 25.0);
-    obstacleMap.insert(std::make_pair(circle->id(), circle));
+    world::ObstaclePtrMap obstacleMap = config_loader::getObstacleMap(config);
+    world::SearchGrid2Config gridConfig = config_loader::getGridConfig(config);
+    planner::RRTConfig rrtConfig = config_loader::getRRTConfig(config);
 
-    world::SearchGrid2 grid(world::Vector2(-100.0, 100.0), world::Vector2(-100.0, 100.0), gridConfig, obstacleMap);
+    for (auto obstacle : obstacleMap)
+    {
+        obstacle.second->print();
+        std::cout << "\n";
+    }
 
-    planner::RRTConfig rrtConfig;
-    rrtConfig.goalClosenessThreshold_ = 7.5;
-    rrtConfig.minIterations_ = 100;
-    rrtConfig.maxIterations_ = 1000;
-    rrtConfig.maxSearchDistance_ = 40.0;
+    gridConfig.print();
+    std::cout << "\n";
+    rrtConfig.print();
+    std::cout << "\n";
 
-    world::Vector2 start = grid.getGridPointClosestTo(world::Vector2(-100.0, -100.0));
-    world::Vector2 goal = grid.getGridPointClosestTo(world::Vector2(100.0, 100.0));
+    world::SearchGrid2 grid(gridConfig, obstacleMap);
 
-    std::cout << "Start Point: " << start.transpose() << std::endl;
-    std::cout << "Goal Point:  " << goal.transpose() << std::endl;
+    world::Vector2 startPose;
+    try
+    {
+        std::vector<double> pose;
+        if (config["start_pose"].IsSequence())
+        {
+            pose = config["start_pose"].as<std::vector<double>>();
+            assert(pose.size() == 2);
+            startPose << pose[0], pose[1];
+        }
+
+        else if (config["start_pose"].IsScalar() && std::string("generate_random").compare(config["start_pose"].as<std::string>()) == 0)
+            startPose = grid.getRandomGridPoint();
+
+        else
+            startPose = grid.getRandomGridPoint();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error in reading start_pose from YAML config file. Error: " << e.what() << "Generating random pose as input\n";
+        startPose = grid.getRandomGridPoint();
+    }
+
+    world::Vector2 goalPose;
+    try
+    {
+        std::vector<double> pose;
+        if (config["goal_pose"].IsSequence())
+        {
+            pose = config["goal_pose"].as<std::vector<double>>();
+            assert(pose.size() == 2);
+            goalPose << pose[0], pose[1];
+        }
+
+        else if (config["goal_pose"].IsScalar() && std::string("generate_random").compare(config["goal_pose"].as<std::string>()) == 0)
+            goalPose = grid.getRandomGridPoint();
+
+        else
+            goalPose = grid.getRandomGridPoint();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error in reading start_pose from YAML config file. Error: " << e.what() << "Generating random pose as input\n";
+        goalPose = grid.getRandomGridPoint();
+    }
+
+    std::cout << "Start Pose: [" << startPose.transpose() << "]\n";
+    std::cout << "Goal Pose:  [" << goalPose.transpose() << "]\n";
 
     planner::RRT rrt(grid, rrtConfig);
     world::Path2 path;
     double distance;
-    bool found = rrt.findPath(start, goal, path, distance);
+    bool found = rrt.findPath(startPose, goalPose, path, distance);
     if (found && path.size() > 0)
     {
         std::cout << "path found: \n";
-        // for (auto point : path)
-        //     std::cout << "\t" << point.transpose() << std::endl;
         for (unsigned int i = 0; i < path.size() - 1; i++)
-        {
             std::cout << "[" << path[i].transpose() << "] --> [" << path[i + 1].transpose() << "] distance: [" << math_lib::euclideandist2(path[i], path[i + 1]) << "] collision? " << std::boolalpha << grid.collisionCheck(path[i], path[i + 1]) << std::endl;
-        }
         std::cout << "distance: " << distance << std::endl;
     }
     else
