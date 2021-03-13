@@ -58,16 +58,18 @@ namespace world
 
         virtual void print()
         {
-            std::cout << "--------OBSTACLE CONFIG--------\n";
+            std::cout << "\n--------OBSTACLE CONFIG--------\n";
             std::cout << "ID  : [" << id_ << "]\n";
             std::cout << "Type: [" << to_string(type_) << "]\n";
+            std::cout << "-------------------------------\n";
         }
 
         virtual void print() const
         {
-            std::cout << "--------OBSTACLE CONFIG--------\n";
+            std::cout << "\n--------OBSTACLE CONFIG--------\n";
             std::cout << "ID  : [" << id_ << "]\n";
             std::cout << "Type: [" << to_string(type_) << "]\n";
+            std::cout << "-------------------------------\n";
         }
 
         virtual bool isColliding(const Vector2 &, const Vector2 &) { return false; }

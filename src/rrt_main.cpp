@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
     }
 
     std::cout << "Start Pose: [" << startPose.transpose() << "]\n";
-    std::cout << "Goal Pose:  [" << goalPose.transpose() << "]\n";
+    std::cout << "Goal Pose : [" << goalPose.transpose() << "]\n";
 
     planner::RRT rrt(grid, rrtConfig);
     bool found = rrt.findPath(startPose, goalPose);
@@ -82,9 +82,10 @@ int main(int argc, char const *argv[])
     {
         world::Path2 path = rrt.path();
         double distance = rrt.pathLength();
-        std::cout << "path found: \n";
+        std::cout << "Path found\n";
+        std::cout << "Path: \n";
         for (unsigned int i = 0; i < path.size() - 1; i++)
-            std::cout << "[" << path[i].transpose() << "] --> [" << path[i + 1].transpose() << "] distance: [" << math_lib::euclideandist2(path[i], path[i + 1]) << "] collision? " << std::boolalpha << grid.collisionCheck(path[i], path[i + 1]) << std::endl;
+            std::cout << "[" << path[i].transpose() << "] --> [" << path[i + 1].transpose() << "] distance: [" << math_lib::euclideandist2(path[i], path[i + 1]) << "]\n";
         std::cout << "path length: " << distance << std::endl;
     }
     else

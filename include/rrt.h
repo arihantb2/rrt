@@ -63,11 +63,22 @@ namespace planner
 
         void print()
         {
-            std::cout << "--------RRT CONFIG--------\n";
+            std::cout << "\n--------RRT CONFIG--------\n";
             std::cout << "Max Iterations          : [" << maxIterations_ << "]\n";
             std::cout << "Min Iterations          : [" << minIterations_ << "]\n";
             std::cout << "Max Step Size           : [" << maxStepSize_ << "]\n";
             std::cout << "Goal Closeness Threshold: [" << goalClosenessThreshold_ << "]\n";
+            std::cout << "--------------------------\n";
+        }
+
+        void print() const
+        {
+            std::cout << "\n--------RRT CONFIG--------\n";
+            std::cout << "Max Iterations          : [" << maxIterations_ << "]\n";
+            std::cout << "Min Iterations          : [" << minIterations_ << "]\n";
+            std::cout << "Max Step Size           : [" << maxStepSize_ << "]\n";
+            std::cout << "Goal Closeness Threshold: [" << goalClosenessThreshold_ << "]\n";
+            std::cout << "--------------------------\n";
         }
 
         double maxStepSize_;

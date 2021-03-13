@@ -43,10 +43,20 @@ namespace world
 
         void print()
         {
-            std::cout << "--------SEARCH GRID2 CONFIG--------\n";
+            std::cout << "\n--------SEARCH GRID2 CONFIG--------\n";
             std::cout << "X limits: [" << xlim_.transpose() << "]\n";
             std::cout << "Y limits: [" << ylim_.transpose() << "]\n";
             std::cout << "Spacing : [" << xres_ << " " << yres_ << "]\n";
+            std::cout << "-----------------------------------\n";
+        }
+
+        void print() const
+        {
+            std::cout << "\n--------SEARCH GRID2 CONFIG--------\n";
+            std::cout << "X limits: [" << xlim_.transpose() << "]\n";
+            std::cout << "Y limits: [" << ylim_.transpose() << "]\n";
+            std::cout << "Spacing : [" << xres_ << " " << yres_ << "]\n";
+            std::cout << "-----------------------------------\n";
         }
 
         Vector2 xlim_;
