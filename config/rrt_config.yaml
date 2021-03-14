@@ -1,3 +1,19 @@
+# World layout for this configuration, s = start, g = goal, ' ' = empty grid space, '_','|' = obstacles
+# 
+#                    (0,100)
+#                       :                    g(100,100)
+#                       :
+#                       :
+#            (-10,10)___:___(10,10)
+#                   |   :   |
+#     <-------------|---s---|---------------->
+# (-100,0)          |   :   |             (100,0)
+#             (-10,-10) :  (10,-10)
+#                       : 
+#                       : 
+#                       :
+#                    (0,-100)
+
 # Start coordinates [x, y] or generate_random
 start_pose: [0.0, 0.0]
 
@@ -15,9 +31,6 @@ obstacles:
   - type  : Line
     start : [10, 10]
     end   : [10, -10]
-  - type  : Circle
-    center: [50, 50]
-    radius: 5
 
 # Search space grid
 grid:
