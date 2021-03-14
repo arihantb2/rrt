@@ -58,21 +58,21 @@ namespace world
         return getGridPointClosestTo(Vector2(math_lib::dRand(config_.xlim_[0], config_.xlim_[1]), math_lib::dRand(config_.ylim_[0], config_.ylim_[1])));
     }
 
-    bool SearchGrid2::collisionCheck(const Vector2 &point1, const Vector2 &point2)
+    bool SearchGrid2::collisionCheck(const Line2 &line)
     {
         for (auto obstacle : obstacles_)
         {
             if (obstacle.second->type() == world::ObstacleType::LINE)
             {
-                std::shared_ptr<world::Line> line = std::dynamic_pointer_cast<world::Line>(obstacle.second);
-                if (line->isColliding(point1, point2))
+                std::shared_ptr<world::LineObstacle> lineObstacle = std::dynamic_pointer_cast<world::LineObstacle>(obstacle.second);
+                if (lineObstacle->collisionCheck(line))
                     return true;
             }
 
             else if (obstacle.second->type() == world::ObstacleType::CIRCLE)
             {
-                std::shared_ptr<world::Circle> circle = std::dynamic_pointer_cast<world::Circle>(obstacle.second);
-                if (circle->isColliding(point1, point2))
+                std::shared_ptr<world::CircleObstacle> circleOstacle = std::dynamic_pointer_cast<world::CircleObstacle>(obstacle.second);
+                if (circleOstacle->collisionCheck(line))
                     return true;
             }
         }

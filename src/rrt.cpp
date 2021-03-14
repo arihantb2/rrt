@@ -49,7 +49,7 @@ namespace planner
             world::Vector2 newPoint = searchGridPtr->getGridPointClosestTo(closestNode->data_ + direction * stepSize);
             dist = math_lib::euclideandist2(newPoint, closestNode->data_);
 
-            if (searchGridPtr->collisionCheck(closestNode->data_, newPoint))
+            if (searchGridPtr->collisionCheck(world::Line2(closestNode->data_, newPoint)))
                 continue;
 
             std::shared_ptr<Node> node;

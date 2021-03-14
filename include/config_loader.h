@@ -26,15 +26,15 @@ namespace config_loader
                 {
                     assert(obsConfig["start"].IsSequence() && "Error in reading line obstacle start config from YAML config file. Format mismatch");
                     assert(obsConfig["end"].IsSequence() && "Error in reading line obstacle end config  from YAML config file. Format mismatch");
-                    world::ObstaclePtr line = std::make_shared<world::Line>(obsConfig["start"].as<std::vector<double>>(), obsConfig["end"].as<std::vector<double>>());
-                    obstacleMap.insert(std::make_pair(line->id(), line));
+                    world::ObstaclePtr obstacle = std::make_shared<world::LineObstacle>(obsConfig["start"].as<std::vector<double>>(), obsConfig["end"].as<std::vector<double>>());
+                    obstacleMap.insert(std::make_pair(obstacle->id(), obstacle));
                 }
                 else if (std::string("Circle").compare(type) == 0)
                 {
                     assert(obsConfig["center"].IsSequence() && "Error in reading circle obstacle center config from YAML config file. Format mismatch");
                     assert(obsConfig["radius"].IsScalar() && "Error in reading circle obstacle radius from YAML config file. Format mismatch");
-                    world::ObstaclePtr circle = std::make_shared<world::Circle>(obsConfig["center"].as<std::vector<double>>(), obsConfig["radius"].as<double>());
-                    obstacleMap.insert(std::make_pair(circle->id(), circle));
+                    world::ObstaclePtr obstacle = std::make_shared<world::CircleObstacle>(obsConfig["center"].as<std::vector<double>>(), obsConfig["radius"].as<double>());
+                    obstacleMap.insert(std::make_pair(obstacle->id(), obstacle));
                 }
                 else
                     std::cout << "Obstacle of type: [] found in config. Not recognized!! Allowed types are: [Line, Circle]\n";

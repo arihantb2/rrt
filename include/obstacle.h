@@ -8,16 +8,6 @@
 
 namespace world
 {
-    enum class Orientation : int
-    {
-        CLOCKWISE = -1,
-        COLINEAR = 0,
-        COUNTERCLOCKWISE = 1,
-    };
-
-    static bool onSegment(const Vector2 &, const Vector2 &, const Vector2 &);
-    static Orientation orientation(const Vector2 &, const Vector2 &, const Vector2 &);
-
     enum class ObstacleType : int
     {
         UNKNOWN = -1,
@@ -27,15 +17,15 @@ namespace world
 
     static std::string to_string(ObstacleType type)
     {
-        switch(type)
+        switch (type)
         {
-            case ObstacleType::LINE:
-                return std::string("LINE");
-            case ObstacleType::CIRCLE:
-                return std::string("CIRCLE");
-            case ObstacleType::UNKNOWN:
-            default:
-                return std::string("UNKNOWN");
+        case ObstacleType::LINE:
+            return std::string("LINE");
+        case ObstacleType::CIRCLE:
+            return std::string("CIRCLE");
+        case ObstacleType::UNKNOWN:
+        default:
+            return std::string("UNKNOWN");
         }
     }
 
@@ -72,8 +62,8 @@ namespace world
             std::cout << "-------------------------------\n";
         }
 
-        virtual bool isColliding(const Vector2 &, const Vector2 &) { return false; }
-        virtual bool isColliding(const Vector2 &, const Vector2 &) const { return false; }
+        virtual bool collisionCheck(const Line2 &) { return false; }
+        virtual bool collisionCheck(const Line2 &) const { return false; }
 
     private:
         static unsigned int idCounter_;
@@ -81,77 +71,60 @@ namespace world
         ObstacleType type_;
     };
 
-    class Circle : public Obstacle
+    class CircleObstacle : public Obstacle, public Circle2
     {
     public:
-        Circle() = delete;
-        Circle(const Vector2 &center, double radius) : center_(center),
-                                                       radius_(radius),
-                                                       Obstacle(ObstacleType::CIRCLE) {}
-        Circle(const std::vector<double> &center, double radius) : radius_(radius), Obstacle(ObstacleType::CIRCLE)
+        CircleObstacle() = delete;
+        CircleObstacle(const Vector2 &center, double radius) : Obstacle(ObstacleType::CIRCLE),
+                                                               Circle2(center, radius) {}
+        CircleObstacle(const std::vector<double> &center, double radius) : Circle2(center, radius),
+                                                                           Obstacle(ObstacleType::CIRCLE) {}
+        CircleObstacle(const CircleObstacle &other) : Obstacle(other), Circle2(other) {}
+
+        ~CircleObstacle() {}
+
+        virtual void print()
         {
-            assert(center.size() == 2);
-            center_ << center[0], center[1];
+            Obstacle::print();
+            Circle2::print();
         }
-        Circle(const Circle &other) : center_(other.center()),
-                                      radius_(other.radius()),
-                                      Obstacle(other) {}
 
-        ~Circle() {}
+        virtual void print() const
+        {
+            Obstacle::print();
+            Circle2::print();
+        }
 
-        Vector2 &center() { return center_; }
-        Vector2 center() const { return center_; }
-
-        double &radius() { return radius_; }
-        double radius() const { return radius_; }
-
-        virtual void print();
-        virtual void print() const;
-
-        virtual bool isColliding(const Vector2 &point1, const Vector2 &point2);
-        virtual bool isColliding(const Vector2 &point1, const Vector2 &point2) const;
-
-    private:
-        Vector2 center_;
-        double radius_;
+        virtual bool collisionCheck(const Line2 &);
+        virtual bool collisionCheck(const Line2 &) const;
     };
 
-    class Line : public Obstacle
+    class LineObstacle : public Obstacle, public Line2
     {
     public:
-        Line() = delete;
-        Line(const Vector2 &point1, const Vector2 &point2) : Obstacle(ObstacleType::LINE),
-                                                             point1_(point1),
-                                                             point2_(point2) {}
-        Line(const std::vector<double> &point1, const std::vector<double> &point2) : Obstacle(ObstacleType::LINE)
+        LineObstacle() = delete;
+        LineObstacle(const Vector2 &point1, const Vector2 &point2) : Obstacle(ObstacleType::LINE), 
+                                                                     Line2(point1, point2) {}
+        LineObstacle(const std::vector<double> &point1, const std::vector<double> &point2) : Obstacle(ObstacleType::LINE), 
+                                                                                             Line2(point1, point2) {}
+        LineObstacle(const LineObstacle &other) : Obstacle(other), Line2(other) {}
+
+        ~LineObstacle() {}
+
+        virtual void print()
         {
-            assert(point1.size() == 2);
-            point1_ << point1[0], point1[1];
-
-            assert(point2.size() == 2);
-            point2_ << point2[0], point2[1];
+            Obstacle::print();
+            Line2::print();
         }
-        Line(const Line &other) : Obstacle(other),
-                                  point1_(other.point1()),
-                                  point2_(other.point2()) {}
 
-        ~Line() {}
+        virtual void print() const
+        {
+            Obstacle::print();
+            Line2::print();
+        }
 
-        Vector2 &point1() { return point1_; }
-        Vector2 point1() const { return point1_; }
-
-        Vector2 &point2() { return point2_; }
-        Vector2 point2() const { return point2_; }
-
-        virtual void print();
-        virtual void print() const;
-
-        virtual bool isColliding(const Vector2 &, const Vector2 &);
-        virtual bool isColliding(const Vector2 &, const Vector2 &) const;
-
-    private:
-        Vector2 point1_;
-        Vector2 point2_;
+        virtual bool collisionCheck(const Line2 &);
+        virtual bool collisionCheck(const Line2 &) const;
     };
 
     typedef std::shared_ptr<Obstacle> ObstaclePtr;

@@ -43,20 +43,20 @@ namespace world
 
         void print()
         {
-            std::cout << "\n--------SEARCH GRID2 CONFIG--------\n";
+            std::cout << "\n--------SEARCH GRID CONFIG--------\n";
             std::cout << "X limits: [" << xlim_.transpose() << "]\n";
             std::cout << "Y limits: [" << ylim_.transpose() << "]\n";
             std::cout << "Spacing : [" << xres_ << " " << yres_ << "]\n";
-            std::cout << "-----------------------------------\n";
+            std::cout << "----------------------------------\n";
         }
 
         void print() const
         {
-            std::cout << "\n--------SEARCH GRID2 CONFIG--------\n";
+            std::cout << "\n--------SEARCH GRID CONFIG--------\n";
             std::cout << "X limits: [" << xlim_.transpose() << "]\n";
             std::cout << "Y limits: [" << ylim_.transpose() << "]\n";
             std::cout << "Spacing : [" << xres_ << " " << yres_ << "]\n";
-            std::cout << "-----------------------------------\n";
+            std::cout << "----------------------------------\n";
         }
 
         Vector2 xlim_;
@@ -86,8 +86,8 @@ namespace world
         bool isPointValid(const Vector2 &);
         bool isPointValid(const Vector2 &) const;
 
-        bool collisionCheck(const Vector2 &, const Vector2 &);
-        bool collisionCheck(const Vector2 &, const Vector2 &) const;
+        bool collisionCheck(const Line2 &);
+        bool collisionCheck(const Line2 &) const;
 
         Vector2 getGridPointClosestTo(const Vector2 &point);
         Vector2 getGridPointClosestTo(const Vector2 &point) const;

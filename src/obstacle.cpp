@@ -4,100 +4,60 @@ namespace world
 {
     unsigned int Obstacle::idCounter_ = 0;
 
-    void Circle::print()
+    bool CircleObstacle::collisionCheck(const Line2 &line)
     {
-        std::cout << "\n--------CIRCLE OBSTACLE CONFIG--------\n";
-        std::cout << "ID    : [" << id() << "]\n";
-        std::cout << "Type  : [" << to_string(type()) << "]\n";
-        std::cout << "Center: [" << center_.transpose() << "]\n";
-        std::cout << "Radius: [" << radius_ << "]\n";
-        std::cout << "--------------------------------------\n";
-    }
-
-    void Circle::print() const
-    {
-        std::cout << "\n--------CIRCLE OBSTACLE CONFIG--------\n";
-        std::cout << "ID    : [" << id() << "]\n";
-        std::cout << "Type  : [" << to_string(type()) << "]\n";
-        std::cout << "Center: [" << center_.transpose() << "]\n";
-        std::cout << "Radius: [" << radius_ << "]\n";
-        std::cout << "--------------------------------------\n";
-    }
-
-    bool Circle::isColliding(const Vector2 &point1, const Vector2 &point2)
-    {
-        double distanceSq = math_lib::dot2(point1 - point2, point1 - point2);
+        double distanceSq = math_lib::dot2(line.point1() - line.point2(), line.point1() - line.point2());
         if (distanceSq <= 1e-8)
             return false;
 
-        double r = math_lib::dot2(point1 - point2, point1 - center_) / distanceSq;
+        double r = math_lib::dot2(line.point1() - line.point2(), line.point1() - center()) / distanceSq;
         r = std::max(0.0, std::min(r, 1.0));
 
-        Vector2 closestPointToCenter = r * (point2 - point1) + point1;
-        double distToCenter = math_lib::dot2(closestPointToCenter - center_, closestPointToCenter - center_);
+        Vector2 closestPointToCenter = r * (line.point2() - line.point1()) + line.point1();
+        double distToCenter = math_lib::dot2(closestPointToCenter - center(), closestPointToCenter - center());
 
-        return (distToCenter <= radius_);
+        return (distToCenter <= radius());
     }
 
-    bool Circle::isColliding(const Vector2 &point1, const Vector2 &point2) const
+    bool CircleObstacle::collisionCheck(const Line2 &line) const
     {
-        double distanceSq = math_lib::dot2(point1 - point2, point1 - point2);
+        double distanceSq = math_lib::dot2(line.point1() - line.point2(), line.point1() - line.point2());
         if (distanceSq <= 1e-8)
             return false;
 
-        double r = math_lib::dot2(point1 - point2, point1 - center_) / distanceSq;
+        double r = math_lib::dot2(line.point1() - line.point2(), line.point1() - center()) / distanceSq;
         r = std::max(0.0, std::min(r, 1.0));
 
-        Vector2 closestPointToCenter = r * (point2 - point1) + point1;
-        double distToCenter = math_lib::dot2(closestPointToCenter - center_, closestPointToCenter - center_);
+        Vector2 closestPointToCenter = r * (line.point2() - line.point1()) + line.point1();
+        double distToCenter = math_lib::dot2(closestPointToCenter - center(), closestPointToCenter - center());
 
-        return (distToCenter <= radius_);
+        return (distToCenter <= radius());
     }
 
-    void Line::print()
+    bool LineObstacle::collisionCheck(const Line2 &line)
     {
-        std::cout << "\n--------LINE OBSTACLE CONFIG--------\n";
-        std::cout << "ID   : [" << id() << "]\n";
-        std::cout << "Type : [" << to_string(type()) << "]\n";
-        std::cout << "Start: [" << point1_.transpose() << "]\n";
-        std::cout << "End  : [" << point2_.transpose() << "]\n";
-        std::cout << "------------------------------------\n";
-    }
-
-    void Line::print() const
-    {
-        std::cout << "\n--------LINE OBSTACLE CONFIG--------\n";
-        std::cout << "ID   : [" << id() << "]\n";
-        std::cout << "Type : [" << to_string(type()) << "]\n";
-        std::cout << "Start: [" << point1_.transpose() << "]\n";
-        std::cout << "End  : [" << point2_.transpose() << "]\n";
-        std::cout << "------------------------------------\n";
-    }
-
-    bool Line::isColliding(const Vector2 &point3, const Vector2 &point4)
-    {
-        double D = ((point1_.x() - point2_.x()) * (point3.y() - point4.y())) - ((point1_.y() - point2_.y()) * (point3.x() - point4.x()));
+        double D = ((point1().x() - point2_.x()) * (line.point1().y() - line.point2().y())) - ((point1().y() - point2_.y()) * (line.point1().x() - line.point2().x()));
 
         if (abs(D) < 1e-6)
         {
-            if (onSegment(point1_, point3, point2_) || onSegment(point1_, point4, point2_))
+            if (this->onLine(line.point1()) || this->onLine(line.point2()))
                 return true;
 
-            if (onSegment(point3, point1_, point4) || onSegment(point3, point2_, point4))
+            if (line.onLine(point1()) || line.onLine(point2()))
                 return true;
 
             return false;
         }
 
-        double x1_x2 = point1_.x() - point2_.x();
-        double y1_y2 = point1_.y() - point2_.y();
-        double x3_x4 = point3.x() - point4.x();
-        double y3_y4 = point3.y() - point4.y();
-        double x1_x3 = point1_.x() - point3.x();
-        double y1_y3 = point1_.y() - point3.y();
+        double x1_x2 = point1().x() - point2_.x();
+        double y1_y2 = point1().y() - point2_.y();
+        double x3_x4 = line.point1().x() - line.point2().x();
+        double y3_y4 = line.point1().y() - line.point2().y();
+        double x1_x3 = point1().x() - line.point1().x();
+        double y1_y3 = point1().y() - line.point1().y();
 
-        double x1y2_y1x2 = point1_.x() * point2_.y() - point1_.y() * point2_.x();
-        double x3y4_y3x4 = point3.x() * point4.y() - point3.y() * point4.x();
+        double x1y2_y1x2 = point1().x() * point2_.y() - point1().y() * point2_.x();
+        double x3y4_y3x4 = line.point1().x() * line.point2().y() - line.point1().y() * line.point2().x();
 
         world::Vector2 intPoint;
         intPoint.x() = (x1y2_y1x2 * x3_x4 - x1_x2 * x3y4_y3x4) / D;
@@ -113,30 +73,30 @@ namespace world
         return false;
     }
 
-    bool Line::isColliding(const Vector2 &point3, const Vector2 &point4) const
+    bool LineObstacle::collisionCheck(const Line2 &line) const
     {
-        double D = ((point1_.x() - point2_.x()) * (point3.y() - point4.y())) - ((point1_.y() - point2_.y()) * (point3.x() - point4.x()));
+        double D = ((point1().x() - point2_.x()) * (line.point1().y() - line.point2().y())) - ((point1().y() - point2_.y()) * (line.point1().x() - line.point2().x()));
 
         if (abs(D) < 1e-6)
         {
-            if (onSegment(point1_, point3, point2_) || onSegment(point1_, point4, point2_))
+            if (this->onLine(line.point1()) || this->onLine(line.point2()))
                 return true;
 
-            if (onSegment(point3, point1_, point4) || onSegment(point3, point2_, point4))
+            if (line.onLine(point1()) || line.onLine(point2()))
                 return true;
 
             return false;
         }
 
-        double x1_x2 = point1_.x() - point2_.x();
-        double y1_y2 = point1_.y() - point2_.y();
-        double x3_x4 = point3.x() - point4.x();
-        double y3_y4 = point3.y() - point4.y();
-        double x1_x3 = point1_.x() - point3.x();
-        double y1_y3 = point1_.y() - point3.y();
+        double x1_x2 = point1().x() - point2_.x();
+        double y1_y2 = point1().y() - point2_.y();
+        double x3_x4 = line.point1().x() - line.point2().x();
+        double y3_y4 = line.point1().y() - line.point2().y();
+        double x1_x3 = point1().x() - line.point1().x();
+        double y1_y3 = point1().y() - line.point1().y();
 
-        double x1y2_y1x2 = point1_.x() * point2_.y() - point1_.y() * point2_.x();
-        double x3y4_y3x4 = point3.x() * point4.y() - point3.y() * point4.x();
+        double x1y2_y1x2 = point1().x() * point2_.y() - point1().y() * point2_.x();
+        double x3y4_y3x4 = line.point1().x() * line.point2().y() - line.point1().y() * line.point2().x();
 
         world::Vector2 intPoint;
         intPoint.x() = (x1y2_y1x2 * x3_x4 - x1_x2 * x3y4_y3x4) / D;
@@ -150,32 +110,5 @@ namespace world
             return true;
 
         return false;
-    }
-
-    bool onSegment(const Vector2 &p, const Vector2 &q, const Vector2 &r)
-    {
-        // Source: https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
-
-        double cross = math_lib::cross2(q - p, r - p);
-        double dot = math_lib::dot2(q - p, r - p);
-
-        if (cross == 0.0 && dot > 0.0)
-            return true;
-
-        return false;
-    }
-
-    Orientation orientation(const Vector2 &p, const Vector2 &q, const Vector2 &r)
-    {
-        // Source: https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
-
-        int val = (q.y() - p.y()) * (r.x() - q.x()) -
-                  (q.x() - p.x()) * (r.y() - q.y());
-
-        if (val < 0.0)
-            return Orientation::COUNTERCLOCKWISE;
-        if (val == 0.0)
-            return Orientation::COLINEAR;
-        return Orientation::CLOCKWISE;
     }
 }
