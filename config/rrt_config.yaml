@@ -31,6 +31,19 @@ obstacles:
   - type  : Line
     start : [10, 10]
     end   : [10, -10]
+# obstacles:
+#   - type  : Circle
+#     center: [-10, 0]
+#     radius: 5.0
+#   - type  : Circle
+#     center: [10, 0]
+#     radius: 5.0
+#   - type  : Circle
+#     center: [0, 10]
+#     radius: 5.0
+#   - type  : Circle
+#     center: [0, -10]
+#     radius: 5.0
 
 # Search space grid
 grid:
