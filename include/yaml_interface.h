@@ -9,8 +9,11 @@
 
 namespace config_loader
 {
-    static world::ObstaclePtrMap getObstacleMap(const YAML::Node &config)
+    static world::ObstaclePtrMap loadObstacleMapFromYAML(std::string filename)
     {
+        YAML::Node config = YAML::LoadFile(filename);
+        assert(config.IsDefined() && config.IsMap() && "Error in reading YAML config file. Undefined or format mismatch");
+
         world::ObstaclePtrMap obstacleMap;
         try
         {
@@ -48,8 +51,11 @@ namespace config_loader
         return obstacleMap;
     }
 
-    static world::SearchGrid2Config getGridConfig(const YAML::Node &config)
+    static world::SearchGrid2Config loadGridConfigFromYAML(std::string filename)
     {
+        YAML::Node config = YAML::LoadFile(filename);
+        assert(config.IsDefined() && config.IsMap() && "Error in reading YAML config file. Undefined or format mismatch");
+
         world::SearchGrid2Config gridConfig;
         try
         {
@@ -82,8 +88,11 @@ namespace config_loader
         return gridConfig;
     }
 
-    static planner::RRTConfig getRRTConfig(const YAML::Node &config)
+    static planner::RRTConfig loadRRTConfigFromYAML(std::string filename)
     {
+        YAML::Node config = YAML::LoadFile(filename);
+        assert(config.IsDefined() && config.IsMap() && "Error in reading YAML config file. Undefined or format mismatch");
+
         planner::RRTConfig rrtConfig;
         try
         {
@@ -108,5 +117,99 @@ namespace config_loader
         }
 
         return rrtConfig;
+    }
+
+    static world::Vector2 loadStartPoseFromYAML(std::string filename, const world::SearchGrid2 &grid)
+    {
+        YAML::Node config = YAML::LoadFile(filename);
+        assert(config.IsDefined() && config.IsMap() && "Error in reading YAML config file. Undefined or format mismatch");
+
+        world::Vector2 startPose;
+        try
+        {
+            std::vector<double> pose;
+            if (config["start_pose"].IsSequence())
+            {
+                pose = config["start_pose"].as<std::vector<double>>();
+                assert(pose.size() == 2);
+                startPose << pose[0], pose[1];
+            }
+
+            else if (config["start_pose"].IsScalar() && std::string("generate_random").compare(config["start_pose"].as<std::string>()) == 0)
+                startPose = grid.getRandomGridPoint();
+
+            else
+                startPose = grid.getRandomGridPoint();
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Error in reading start_pose from YAML config file. Error: " << e.what() << "Generating random pose as input\n";
+            startPose = grid.getRandomGridPoint();
+        }
+
+        return startPose;
+    }
+
+    static world::Vector2 loadGoalPoseFromYAML(std::string filename, const world::SearchGrid2 &grid)
+    {
+        YAML::Node config = YAML::LoadFile(filename);
+        assert(config.IsDefined() && config.IsMap() && "Error in reading YAML config file. Undefined or format mismatch");
+
+        world::Vector2 goalPose;
+        try
+        {
+            std::vector<double> pose;
+            if (config["goal_pose"].IsSequence())
+            {
+                pose = config["goal_pose"].as<std::vector<double>>();
+                assert(pose.size() == 2);
+                goalPose << pose[0], pose[1];
+            }
+
+            else if (config["goal_pose"].IsScalar() && std::string("generate_random").compare(config["goal_pose"].as<std::string>()) == 0)
+                goalPose = grid.getRandomGridPoint();
+
+            else
+                goalPose = grid.getRandomGridPoint();
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Error in reading start_pose from YAML config file. Error: " << e.what() << "Generating random pose as input\n";
+            goalPose = grid.getRandomGridPoint();
+        }
+
+        return goalPose;
+    }
+}
+
+namespace path_writer
+{
+    void writePathToYAML(std::string filename, const world::Path2 &path)
+    {
+        using namespace YAML;
+        
+        Emitter out;
+
+        out << BeginMap;
+        out << Key << "path";
+        out << Value;
+        out << BeginSeq;
+        for (const auto waypoint: path)
+        {
+            std::vector<double> point{waypoint[0], waypoint[1]};
+            out << Flow << point;
+        }
+        out << EndSeq;
+        out << EndMap;
+
+        if(!out.good())
+        {
+            std::cout << out.GetLastError() << std::endl;
+            return;
+        }
+
+        std::ofstream outWriter(filename);
+        outWriter << out.c_str();
+        outWriter.close();
     }
 }

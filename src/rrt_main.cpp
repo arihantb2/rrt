@@ -1,18 +1,15 @@
 #include <yaml-cpp/yaml.h>
 
 #include <rrt.h>
-#include <config_loader.h>
+#include <yaml_interface.h>
 
 int main(int argc, char const *argv[])
 {
     assert((argc == 2) && "Exactly one argument required after executable name. Usage: ./rrt <yaml-config-file-path>");
 
-    YAML::Node config = YAML::LoadFile(argv[1]);
-    assert(config.IsDefined() && config.IsMap() && "Error in reading YAML config file. Undefined or format mismatch");
-
-    world::ObstaclePtrMap obstacleMap = config_loader::getObstacleMap(config);
-    world::SearchGrid2Config gridConfig = config_loader::getGridConfig(config);
-    planner::RRTConfig rrtConfig = config_loader::getRRTConfig(config);
+    world::ObstaclePtrMap obstacleMap = config_loader::loadObstacleMapFromYAML(std::string(argv[1]));
+    world::SearchGrid2Config gridConfig = config_loader::loadGridConfigFromYAML(std::string(argv[1]));
+    planner::RRTConfig rrtConfig = config_loader::loadRRTConfigFromYAML(std::string(argv[1]));
 
     for (auto obstacle : obstacleMap)
     {
@@ -27,51 +24,8 @@ int main(int argc, char const *argv[])
 
     world::SearchGrid2 grid(gridConfig, obstacleMap);
 
-    world::Vector2 startPose;
-    try
-    {
-        std::vector<double> pose;
-        if (config["start_pose"].IsSequence())
-        {
-            pose = config["start_pose"].as<std::vector<double>>();
-            assert(pose.size() == 2);
-            startPose << pose[0], pose[1];
-        }
-
-        else if (config["start_pose"].IsScalar() && std::string("generate_random").compare(config["start_pose"].as<std::string>()) == 0)
-            startPose = grid.getRandomGridPoint();
-
-        else
-            startPose = grid.getRandomGridPoint();
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Error in reading start_pose from YAML config file. Error: " << e.what() << "Generating random pose as input\n";
-        startPose = grid.getRandomGridPoint();
-    }
-
-    world::Vector2 goalPose;
-    try
-    {
-        std::vector<double> pose;
-        if (config["goal_pose"].IsSequence())
-        {
-            pose = config["goal_pose"].as<std::vector<double>>();
-            assert(pose.size() == 2);
-            goalPose << pose[0], pose[1];
-        }
-
-        else if (config["goal_pose"].IsScalar() && std::string("generate_random").compare(config["goal_pose"].as<std::string>()) == 0)
-            goalPose = grid.getRandomGridPoint();
-
-        else
-            goalPose = grid.getRandomGridPoint();
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Error in reading start_pose from YAML config file. Error: " << e.what() << "Generating random pose as input\n";
-        goalPose = grid.getRandomGridPoint();
-    }
+    world::Vector2 startPose = config_loader::loadStartPoseFromYAML(std::string(argv[1]), grid);
+    world::Vector2 goalPose = config_loader::loadGoalPoseFromYAML(std::string(argv[1]), grid);
 
     std::cout << "Start Pose: [" << startPose.transpose() << "]\n";
     std::cout << "Goal Pose : [" << goalPose.transpose() << "]\n";
@@ -87,6 +41,8 @@ int main(int argc, char const *argv[])
         for (unsigned int i = 0; i < path.size() - 1; i++)
             std::cout << "[" << path[i].transpose() << "] --> [" << path[i + 1].transpose() << "] distance: [" << math_lib::euclideandist2(path[i], path[i + 1]) << "]\n";
         std::cout << "path length: " << distance << std::endl;
+
+        path_writer::writePathToYAML("config/path.yaml", path);
     }
     else
         std::cout << "path not found\n";
