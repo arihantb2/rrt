@@ -2,6 +2,8 @@
 
 namespace planner
 {
+    unsigned int Node::idCounter_ = 0;
+
     RRT::RRT(const world::SearchGrid2 &grid, const RRTConfig &config)
     {
         searchGridPtr = std::make_shared<world::SearchGrid2>(grid);
@@ -15,6 +17,7 @@ namespace planner
         numIterations_ = 0;
         goalNode_ = nullptr;
         pathFound_ = false;
+        tree_.reset();
     }
 
     bool RRT::findPath(const world::Vector2 &start, const world::Vector2 &goal)
@@ -24,11 +27,10 @@ namespace planner
 
         reset();
 
-        Tree tree;
-        tree.root_ = tree.addNode(start);
-        tree.root_->parent_ = nullptr;
-        tree.root_->children_.clear();
-        tree.root_->cost_ = 0.0;
+        tree_.root_ = tree_.addNode(start);
+        tree_.root_->parent_ = nullptr;
+        tree_.root_->children_.clear();
+        tree_.root_->cost_ = 0.0;
 
         numIterations_ = 0;
         while (numIterations_ < config_.maxIterations_)
@@ -38,24 +40,28 @@ namespace planner
             world::Vector2 randomPoint = searchGridPtr->getRandomGridPoint();
 
             double dist;
-            std::shared_ptr<Node> closestNode = tree.getNodeClosestTo(randomPoint, dist);
+            std::shared_ptr<Node> closestNode = getNodeClosestTo(randomPoint, dist);
+            if (closestNode == nullptr)
+                continue;
 
-            double stepSize = math_lib::dRand(0.0, config_.maxStepSize_);
+            // world::Vector2 newPoint = randomPoint;
+            double stepSize = math_lib::dRand(0.0, std::min(dist, config_.maxStepSize_));
 
             world::Vector2 direction = randomPoint - closestNode->data_;
             double size = direction.norm();
             direction = direction / size;
 
-            world::Vector2 newPoint = searchGridPtr->getGridPointClosestTo(closestNode->data_ + direction * stepSize);
+            world::Vector2 newPoint = closestNode->data_ + direction * stepSize;
+            newPoint = searchGridPtr->getGridPointClosestTo(newPoint);
             dist = math_lib::euclideandist2(newPoint, closestNode->data_);
 
             if (searchGridPtr->collisionCheck(world::Line2(closestNode->data_, newPoint)))
                 continue;
 
             std::shared_ptr<Node> node;
-            if (tree.nodeExists(newPoint, node) == false)
+            if (tree_.nodeExists(newPoint, node) == false)
             {
-                node = tree.addNode(newPoint);
+                node = tree_.addNode(newPoint);
                 node->parent_ = closestNode;
                 closestNode->children_.push_back(node);
                 node->cost_ = closestNode->cost_ + dist;
@@ -75,9 +81,61 @@ namespace planner
                 if (numIterations_ > config_.minIterations_)
                     break;
             }
+
+            if (pathFound_ && numIterations_ > config_.minIterations_)
+                break;
         }
 
         return pathFound_;
+    }
+
+    std::shared_ptr<Node> RRT::getNodeClosestTo(const world::Vector2 &point, double &distance)
+    {
+        std::shared_ptr<Node> minNode = nullptr;
+        double heuristicDist = std::numeric_limits<double>::max();
+        for (auto node : tree_.nodes_)
+        {
+            double dist = math_lib::euclideandist2(node.second->data_, point);
+            if (dist < heuristicDist)
+            {
+                distance = dist;
+                heuristicDist = dist;
+                minNode = node.second;
+            }
+        }
+
+        return minNode;
+    }
+
+    std::shared_ptr<Node> Tree::addNode(const world::Vector2 &point)
+    {
+        std::size_t hash = world::vectorHash(point);
+        std::shared_ptr<Node> node = std::make_shared<Node>(point);
+        nodes_.insert(std::make_pair(hash, node));
+
+        return node;
+    }
+
+    bool Tree::nodeExists(const world::Vector2 &point, std::shared_ptr<Node> &node)
+    {
+        std::size_t hash = world::vectorHash(point);
+
+        if (nodes_.find(hash) == nodes_.end())
+            return false;
+
+        node = nodes_.at(hash);
+        return true;
+    }
+
+    bool Tree::nodeExists(const world::Vector2 &point, std::shared_ptr<Node> &node) const
+    {
+        std::size_t hash = world::vectorHash(point);
+
+        if (nodes_.find(hash) == nodes_.end())
+            return false;
+
+        node = nodes_.at(hash);
+        return true;
     }
 
     world::Path2 RRT::path()
@@ -126,43 +184,5 @@ namespace planner
             return goalNode_->cost_;
 
         return -1.0;
-    }
-
-    std::shared_ptr<Node> Tree::getNodeClosestTo(const world::Vector2 &point, double &distance)
-    {
-        std::shared_ptr<Node> minNode;
-        double heuristicDist = std::numeric_limits<double>::max();
-        for (auto node : nodes_)
-        {
-            double dist = math_lib::euclideandist2(node.second->data_, point);
-            if (dist < heuristicDist)
-            {
-                distance = dist;
-                heuristicDist = dist;
-                minNode = node.second;
-            }
-        }
-
-        return minNode;
-    }
-
-    std::shared_ptr<Node> Tree::addNode(const world::Vector2 &point)
-    {
-        std::size_t hash = world::vectorHash(point);
-        std::shared_ptr<Node> node = std::make_shared<Node>(point);
-        nodes_.insert(std::make_pair(hash, node));
-
-        return node;
-    }
-
-    bool Tree::nodeExists(const world::Vector2 &point, std::shared_ptr<Node> &node)
-    {
-        std::size_t hash = world::vectorHash(point);
-
-        if (nodes_.find(hash) == nodes_.end())
-            return false;
-
-        node = nodes_.at(hash);
-        return true;
     }
 }

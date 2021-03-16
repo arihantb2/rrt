@@ -36,16 +36,12 @@ int main(int argc, char const *argv[])
     {
         world::Path2 path = rrt.path();
         double distance = rrt.pathLength();
-        std::cout << "Path found\n";
-        std::cout << "Path: \n";
-        for (unsigned int i = 0; i < path.size() - 1; i++)
-            std::cout << "[" << path[i].transpose() << "] --> [" << path[i + 1].transpose() << "] distance: [" << math_lib::euclideandist2(path[i], path[i + 1]) << "]\n";
-        std::cout << "path length: " << distance << std::endl;
+        std::cout << "Path found. Path length: " << distance << std::endl;
 
-        path_writer::writePathToYAML("config/path.yaml", path);
+        path_writer::writeRRTToYAML("config/rrt_output.yaml", rrt);
     }
     else
-        std::cout << "path not found\n";
+        std::cout << "Path not found\n";
 
     return 0;
 }

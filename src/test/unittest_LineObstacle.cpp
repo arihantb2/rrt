@@ -9,6 +9,7 @@ protected:
 
 public:
     const world::LineObstacle obstacle = world::LineObstacle(world::Vector2(-50.0, 0.0), world::Vector2(50.0, 0.0));
+    const world::LineObstacle obstacle2 = world::LineObstacle(world::Vector2(10.0, 10.0), world::Vector2(10.0, -10.0));
 
     const world::Vector2 point1 = world::Vector2(0.0, 0.0);
     const world::Vector2 point2 = world::Vector2(10.0, 10.0);
@@ -19,6 +20,8 @@ public:
     const world::Vector2 point7 = world::Vector2(5.0, -5.0);
     const world::Vector2 point8 = world::Vector2(-5.0, 5.0);
     const world::Vector2 point9 = world::Vector2(-5.0, -5.0);
+    const world::Vector2 point10 = world::Vector2(5, 2);
+    const world::Vector2 point11 = world::Vector2(14, 5);
 };
 
 TEST_F(LineObstacleTest, NoCollision)
@@ -37,6 +40,11 @@ TEST_F(LineObstacleTest, Collision)
     ASSERT_TRUE(obstacle.collisionCheck(world::Line2(point4, point5)));
     ASSERT_TRUE(obstacle.collisionCheck(world::Line2(point2, point5)));
     ASSERT_TRUE(obstacle.collisionCheck(world::Line2(point3, point4)));
+}
+
+TEST_F(LineObstacleTest, ErrorCheckCollision)
+{
+    ASSERT_TRUE(obstacle2.collisionCheck(world::Line2(point10, point11)));
 }
 
 int main(int argc, char *argv[])

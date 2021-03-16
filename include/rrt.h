@@ -11,8 +11,8 @@ namespace planner
     {
     public:
         Node() = delete;
-        Node(const world::Vector2 &data) : data_(data), parent_(nullptr), cost_(std::numeric_limits<double>::max()) {}
-        Node(const Node &other) : data_(other.data_), parent_(other.parent_), cost_(other.cost_), children_(other.children_) {}
+        Node(const world::Vector2 &data) : data_(data), parent_(nullptr), cost_(std::numeric_limits<double>::max()), id_(idCounter_++) {}
+        Node(const Node &other) : data_(other.data_), parent_(other.parent_), cost_(other.cost_), children_(other.children_), id_(idCounter_++) {}
         ~Node()
         {
             children_.clear();
@@ -21,6 +21,8 @@ namespace planner
         world::Vector2 data_;
         double cost_;
 
+        static unsigned int idCounter_;
+        unsigned int id_;
         std::shared_ptr<Node> parent_;
         std::vector<std::shared_ptr<Node>> children_;
     };
@@ -32,10 +34,20 @@ namespace planner
         ~Tree()
         {
             nodes_.clear();
+            root_.reset();
+            root_ = nullptr;
         }
 
-        std::shared_ptr<Node> getNodeClosestTo(const world::Vector2 &, double &);
+        void reset()
+        {
+            nodes_.clear();
+            root_.reset();
+            root_ = nullptr;
+        }
+
         bool nodeExists(const world::Vector2 &, std::shared_ptr<Node> &);
+        bool nodeExists(const world::Vector2 &, std::shared_ptr<Node> &) const;
+
         std::shared_ptr<Node> addNode(const world::Vector2 &);
 
         std::shared_ptr<Node> root_;
@@ -103,10 +115,16 @@ namespace planner
         double pathLength();
         double pathLength() const;
 
+        std::shared_ptr<Tree> tree() { return std::make_shared<Tree>(tree_); }
+        std::shared_ptr<Tree> tree() const { return std::make_shared<Tree>(tree_); }
+
         void reset();
         bool findPath(const world::Vector2 &, const world::Vector2 &);
 
+        std::shared_ptr<Node> getNodeClosestTo(const world::Vector2 &, double &);
+
     private:
+        Tree tree_;
         std::shared_ptr<world::SearchGrid2> searchGridPtr;
         RRTConfig config_;
         unsigned int numIterations_;

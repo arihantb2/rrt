@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.10.2)
 project(rrt)
 
 set(CMAKE_CXX_STANDARD_REQUIRED 14)
+set(CMAKE_BUILD_TYPE Debug)
 
 find_package(Eigen3 REQUIRED)
-find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
 
 enable_testing()

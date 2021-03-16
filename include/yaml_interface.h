@@ -187,14 +187,14 @@ namespace path_writer
     void writePathToYAML(std::string filename, const world::Path2 &path)
     {
         using namespace YAML;
-        
+
         Emitter out;
 
         out << BeginMap;
         out << Key << "path";
         out << Value;
         out << BeginSeq;
-        for (const auto waypoint: path)
+        for (const auto waypoint : path)
         {
             std::vector<double> point{waypoint[0], waypoint[1]};
             out << Flow << point;
@@ -202,7 +202,53 @@ namespace path_writer
         out << EndSeq;
         out << EndMap;
 
-        if(!out.good())
+        if (!out.good())
+        {
+            std::cout << out.GetLastError() << std::endl;
+            return;
+        }
+
+        std::ofstream outWriter(filename);
+        outWriter << out.c_str();
+        outWriter.close();
+    }
+
+    void writeRRTToYAML(std::string filename, const planner::RRT &rrt)
+    {
+        using namespace YAML;
+
+        Emitter out;
+
+        std::shared_ptr<planner::Tree> tree = rrt.tree();
+
+        out << BeginMap;
+        out << Key << "tree";
+        out << BeginSeq;
+        for (auto node : tree->nodes_)
+        {
+            if (node.second->parent_ == nullptr)
+                continue;
+
+            out << BeginMap;
+            out << Key << "id" << Value << node.second->id_;
+            out << Key << "data" << Value << Flow << std::vector<double>{node.second->data_[0], node.second->data_[1]};
+            out << Key << "parent" << Value << Flow << std::vector<double>{node.second->parent_->data_[0], node.second->parent_->data_[1]};
+            out << Key << "cost" << Value << node.second->cost_;
+            out << EndMap;
+        }
+        out << EndSeq;
+        out << Key << "path";
+        out << Value;
+        out << BeginSeq;
+        for (const auto waypoint : rrt.path())
+        {
+            std::vector<double> point{waypoint[0], waypoint[1]};
+            out << Flow << point;
+        }
+        out << EndSeq;
+        out << EndMap;
+
+        if (!out.good())
         {
             std::cout << out.GetLastError() << std::endl;
             return;
