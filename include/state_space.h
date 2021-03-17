@@ -2,6 +2,7 @@
 
 #include <bits/stdc++.h>
 #include <eigen3/Eigen/Dense>
+#include <math_lib.h>
 
 namespace world
 {
@@ -68,6 +69,7 @@ namespace world
             return false;
         }
 
+    private:
         Vector2 point1_;
         Vector2 point2_;
     };
@@ -109,6 +111,7 @@ namespace world
             std::cout << "-----------------------------\n";
         }
 
+    private:
         Vector2 center_;
         double radius_;
     };
