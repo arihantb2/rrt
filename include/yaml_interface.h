@@ -237,15 +237,20 @@ namespace path_writer
             out << EndMap;
         }
         out << EndSeq;
-        out << Key << "path";
-        out << Value;
-        out << BeginSeq;
-        for (const auto waypoint : rrt.path())
+
+        if (rrt.pathFound())
         {
-            std::vector<double> point{waypoint[0], waypoint[1]};
-            out << Flow << point;
+            out << Key << "path";
+            out << Value;
+            out << BeginSeq;
+            for (const auto waypoint : rrt.path())
+            {
+                std::vector<double> point{waypoint[0], waypoint[1]};
+                out << Flow << point;
+            }
+            out << EndSeq;
         }
-        out << EndSeq;
+
         out << EndMap;
 
         if (!out.good())

@@ -37,11 +37,11 @@ int main(int argc, char const *argv[])
         world::Path2 path = rrt.path();
         double distance = rrt.pathLength();
         std::cout << "Path found. Path length: " << distance << std::endl;
-
-        path_writer::writeRRTToYAML("config/rrt_output.yaml", rrt);
     }
     else
         std::cout << "Path not found\n";
+
+    path_writer::writeRRTToYAML("config/rrt_output.yaml", rrt);
 
     return 0;
 }

@@ -59,6 +59,7 @@ namespace planner
     public:
         RRTConfig()
         {
+            minStepSize_ = 0.0;
             maxStepSize_ = 20.0;
             maxIterations_ = 100;
             minIterations_ = 10;
@@ -67,6 +68,7 @@ namespace planner
 
         RRTConfig(const RRTConfig &other)
         {
+            minStepSize_ = other.minStepSize_;
             maxStepSize_ = other.maxStepSize_;
             maxIterations_ = other.maxIterations_;
             minIterations_ = other.minIterations_;
@@ -78,6 +80,7 @@ namespace planner
             std::cout << "\n--------RRT CONFIG--------\n";
             std::cout << "Max Iterations          : [" << maxIterations_ << "]\n";
             std::cout << "Min Iterations          : [" << minIterations_ << "]\n";
+            std::cout << "Min Step Size           : [" << minStepSize_ << "]\n";
             std::cout << "Max Step Size           : [" << maxStepSize_ << "]\n";
             std::cout << "Goal Closeness Threshold: [" << goalClosenessThreshold_ << "]\n";
             std::cout << "--------------------------\n";
@@ -88,11 +91,13 @@ namespace planner
             std::cout << "\n--------RRT CONFIG--------\n";
             std::cout << "Max Iterations          : [" << maxIterations_ << "]\n";
             std::cout << "Min Iterations          : [" << minIterations_ << "]\n";
+            std::cout << "Min Step Size           : [" << minStepSize_ << "]\n";
             std::cout << "Max Step Size           : [" << maxStepSize_ << "]\n";
             std::cout << "Goal Closeness Threshold: [" << goalClosenessThreshold_ << "]\n";
             std::cout << "--------------------------\n";
         }
 
+        double minStepSize_;
         double maxStepSize_;
         unsigned int maxIterations_;
         unsigned int minIterations_;
@@ -124,6 +129,8 @@ namespace planner
         std::shared_ptr<Node> getNodeClosestTo(const world::Vector2 &, double &);
 
     private:
+        double getRandomStepSize();
+
         Tree tree_;
         std::shared_ptr<world::SearchGrid2> searchGridPtr;
         RRTConfig config_;

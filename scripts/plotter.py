@@ -20,10 +20,17 @@ try:
     goalpose = worldconfig['goal_pose']
     obstacles = worldconfig['obstacles']
     goalthreshold = worldconfig['rrt']['goal_closeness_threshold']
-    path = rrtout['path']
     tree = rrtout['tree']
 except Exception as e:
     print(e)
+
+pathFound = False
+try:
+    path = rrtout['path']
+    pathFound = True
+except Exception as e:
+    print(e)
+
 
 xrng = (xlim[1] - xlim[0]) * 0.5 * 1.1
 xc = (xlim[0] + xlim[1]) * 0.5
@@ -73,25 +80,26 @@ for node_id in sorted(node_ids):
     except Exception as e:
         print(node['id'], ' ', e)
 
-    # if node_id % 20 == 0:
-    fig.canvas.draw()
-    fig.canvas.flush_events()
+    if node_id % 100 == 0:
+        fig.canvas.draw()
+        fig.canvas.flush_events()
 
 fig.canvas.draw()
 fig.canvas.flush_events()
 
 ax.set(title='RRT: Path found!')
 
-x = []
-y = []
-for p in path:
-    x.append(p[0])
-    y.append(p[1])
+if pathFound:
+    x = []
+    y = []
+    for p in path:
+        x.append(p[0])
+        y.append(p[1])
 
-for i in range(len(x) - 1):
-    sns.lineplot(x=[x[i], x[i+1]], y=[y[i], y[i+1]], color='b', linestyle='-', linewidth=3.0,  marker='o', sort=False, ax=ax)
-    fig.canvas.draw()
-    fig.canvas.flush_events()
+    for i in range(len(x) - 1):
+        sns.lineplot(x=[x[i], x[i+1]], y=[y[i], y[i+1]], color='b', linestyle='-', linewidth=3.0,  marker='o', sort=False, ax=ax)
+        fig.canvas.draw()
+        fig.canvas.flush_events()
 
 plt.ioff()
 plt.show()

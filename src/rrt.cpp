@@ -35,8 +35,6 @@ namespace planner
         numIterations_ = 0;
         while (numIterations_ < config_.maxIterations_)
         {
-            numIterations_++;
-
             world::Vector2 randomPoint = searchGridPtr->getRandomGridPoint();
 
             double dist;
@@ -44,13 +42,15 @@ namespace planner
             if (closestNode == nullptr)
                 continue;
 
-            // world::Vector2 newPoint = randomPoint;
-            double stepSize = math_lib::dRand(0.0, std::min(dist, config_.maxStepSize_));
-
             world::Vector2 direction = randomPoint - closestNode->data_;
-            double size = direction.norm();
-            direction = direction / size;
+            double directionSize = direction.norm();
+            if (directionSize < 1e-8)
+                continue;
+            direction = direction / directionSize;
 
+            numIterations_++;
+
+            double stepSize = math_lib::dRand(0.0, std::min(dist, config_.maxStepSize_));
             world::Vector2 newPoint = closestNode->data_ + direction * stepSize;
             newPoint = searchGridPtr->getGridPointClosestTo(newPoint);
             dist = math_lib::euclideandist2(newPoint, closestNode->data_);
@@ -89,17 +89,23 @@ namespace planner
         return pathFound_;
     }
 
+    double RRT::getRandomStepSize()
+    {
+        return math_lib::dRand(config_.minStepSize_, config_.maxStepSize_);
+    }
+
     std::shared_ptr<Node> RRT::getNodeClosestTo(const world::Vector2 &point, double &distance)
     {
         std::shared_ptr<Node> minNode = nullptr;
-        double heuristicDist = std::numeric_limits<double>::max();
+        double minHeuristic = std::numeric_limits<double>::max();
         for (auto node : tree_.nodes_)
         {
             double dist = math_lib::euclideandist2(node.second->data_, point);
-            if (dist < heuristicDist)
+            double heuristic = dist;
+            if (heuristic < minHeuristic)
             {
                 distance = dist;
-                heuristicDist = dist;
+                minHeuristic = heuristic;
                 minNode = node.second;
             }
         }
